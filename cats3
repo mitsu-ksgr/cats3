@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+#------------------------------------------------------------------------------
+#
+# cats3.sh
+#
+# cat the file on the aws s3
+#
+# cats3 s3://foo.example.com/bar.txt
+# cats3 -p aws-profile s3://foo.example.com/bar.txt
+#
+#------------------------------------------------------------------------------
+
+set -u
+umask 0022
+export LC_ALL=C
+readonly SCRIPT_NAME=$(basename $0)
+
+OPT_AWS_PROFILE=""
+
+
+usage() {
+    cat <<__EOS__
+Usage:
+    ${SCRIPT_NAME} [-h] [-p AWS_PROFILE] [S3_URI]
+
+Description:
+    cat the file on aws s3.
+
+S3_URI:
+    The S3 URI of the file you want to cat.
+
+Options:
+    -h show usage.
+    -p specify aws profile.
+
+__EOS__
+}
+
+
+parse_args() {
+    while getopts hp: flag; do
+        case "${flag}" in
+            h )
+                usage
+                exit 0
+                ;;
+            p )
+                OPT_AWS_PROFILE="--profile ${OPTARG}"
+                ;;
+        esac
+    done
+}
+
+
+err() {
+    echo -n "Error: " 1>&2
+    echo $@ 1>&2
+    usage
+    exit 1
+}
+
+
+main() {
+    parse_args $@
+    shift `expr $OPTIND - 1`
+    local s3uri="${1+$1}"
+
+    if [ -z "${s3uri}" ]; then
+        err "S3 URI is not specifid"
+    fi
+
+    aws s3 cp $OPT_AWS_PROFILE $s3uri -
+}
+
+main $@
+exit 0
