@@ -22,3 +22,10 @@ bar.txt contents
 ```
 
 
+## Installation
+```sh
+$ curl -OL https://github.com/mitsu-ksgr/cats3/blob/44125b5f08b83c5da6670ccc922225ccdbc1b3bf/cats3
+$ chmod 744 cats
+$ sudo mv cats /usr/local/bin
+```
+
